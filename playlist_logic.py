@@ -171,14 +171,11 @@ def search_songs(
         return songs
 
     q = query.lower().strip()
-    filtered: List[Song] = []
-
-    for song in songs:
-        value = str(song.get(field, "")).lower()
-        if value and q in value:
-            filtered.append(song)
-
-    return filtered
+    return [
+        song
+        for song in songs
+        if (value := str(song.get(field, "")).lower()) and q in value
+    ]
 
 
 def lucky_pick(
