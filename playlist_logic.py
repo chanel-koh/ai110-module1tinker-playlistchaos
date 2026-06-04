@@ -70,13 +70,20 @@ def classify_song(song: Song, profile: Dict[str, object]) -> str:
     hype_keywords = ["rock", "punk", "party"]
     chill_keywords = ["lofi", "ambient", "sleep"]
 
+    title_lower = title.lower()
     is_hype_keyword = any(k in genre for k in hype_keywords)
-    is_chill_keyword = any(k in title for k in chill_keywords)
+    is_chill_keyword = any(k in title_lower for k in chill_keywords)
 
-    if genre == favorite_genre or energy >= hype_min_energy or is_hype_keyword:
-        return "Hype"
-    if energy <= chill_max_energy or is_chill_keyword:
+    is_hype = energy >= hype_min_energy or is_hype_keyword
+    is_chill = energy <= chill_max_energy or is_chill_keyword
+
+    # Chill wins for genuinely low-energy / chill-titled songs, so a
+    # favorite_genre match doesn't drag them into Hype.
+    if is_chill and not is_hype:
         return "Chill"
+    # favorite_genre acts as a Hype tiebreaker/override, not a Chill override.
+    if is_hype or genre == favorite_genre:
+        return "Hype"
     return "Mixed"
 
 
